@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@theme {
+  /* Palette: an ink/paper document pairing with an editor's-redline accent */
+  --color-ink: #14151a;
+  --color-ink-soft: #9a9ca6;
+  --color-ink-line: #2a2c35;
+  --color-paper: #ecebe4;
+  --color-paper-dim: #cfccc0;
+  --color-mark: #ff5a36;
+  --color-mark-soft: #ffd9cc;
+  --color-signal: #34e08a;
+
+  --font-display: var(--font-space-grotesk), "Space Grotesk", sans-serif;
+  --font-sans: var(--font-inter), "Inter", sans-serif;
+  --font-mono: var(--font-jetbrains-mono), "JetBrains Mono", monospace;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-ink);
+    color: var(--color-paper);
+    font-family: var(--font-sans);
+  }
+
+  ::selection {
+    background-color: var(--color-mark);
+    color: var(--color-ink);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@keyframes scanline {
+  0% {
+    top: 0%;
+  }
+  100% {
+    top: 100%;
+  }
+}
+
+.animate-scanline {
+  animation: scanline 3.2s ease-in-out infinite alternate;
+}
