@@ -8,3 +8,11 @@ export type Feature = {
   title: string;
   description: string;
 };
+
+export type UploadStatus = "idle" | "uploading" | "success" | "error";
+
+export type UploadResponse = {
+  success: boolean;
+  filename?: string;
+  message: string;
+};
