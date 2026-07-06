@@ -8,12 +8,17 @@ import {
   isAllowedFileSize,
   isAllowedFileType,
 } from "@/lib/upload";
-import { UploadResponse, UploadStatus } from "@/types";
+import type {
+  ExtractionResult,
+  UploadResponse,
+  UploadStatus,
+} from "@/types";
 
 export default function ResumeUpload() {
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState<UploadStatus>("idle");
   const [message, setMessage] = useState("");
+  const [extraction, setExtraction] = useState<ExtractionResult | null>(null);
   const [isDragActive, setIsDragActive] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -22,6 +27,7 @@ export default function ResumeUpload() {
       setFile(null);
       setStatus("error");
       setMessage("Only PDF and DOCX files are supported.");
+      setExtraction(null);
       return;
     }
 
@@ -33,12 +39,14 @@ export default function ResumeUpload() {
           MAX_FILE_SIZE_BYTES
         )}.`
       );
+      setExtraction(null);
       return;
     }
 
     setFile(candidate);
     setStatus("idle");
     setMessage("");
+    setExtraction(null);
   }, []);
 
   const handleDrop = useCallback(
@@ -64,6 +72,7 @@ export default function ResumeUpload() {
     setFile(null);
     setStatus("idle");
     setMessage("");
+    setExtraction(null);
   };
 
   const handleUpload = async () => {
@@ -71,6 +80,7 @@ export default function ResumeUpload() {
 
     setStatus("uploading");
     setMessage("");
+    setExtraction(null);
 
     try {
       const formData = new FormData();
@@ -86,16 +96,19 @@ export default function ResumeUpload() {
       if (!response.ok || !data.success) {
         setStatus("error");
         setMessage(data.message || "Upload failed. Please try again.");
+        setExtraction(null);
         return;
       }
 
       setStatus("success");
       setMessage(data.message || "File uploaded successfully");
+      setExtraction(data.extraction ?? null);
     } catch {
       setStatus("error");
       setMessage(
         "Something went wrong. Please check your connection and try again."
       );
+      setExtraction(null);
     }
   };
 
@@ -117,11 +130,10 @@ export default function ResumeUpload() {
         }}
         onDragLeave={() => setIsDragActive(false)}
         onDrop={handleDrop}
-        className={`flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-6 py-12 text-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-mark ${
-          isDragActive
-            ? "border-mark bg-mark-soft/10"
-            : "border-ink-line bg-ink/40 hover:border-paper/40"
-        }`}
+        className={`flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-6 py-12 text-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-mark ${isDragActive
+          ? "border-mark bg-mark-soft/10"
+          : "border-ink-line bg-ink/40 hover:border-paper/40"
+          }`}
       >
         <input
           ref={inputRef}
@@ -221,6 +233,25 @@ export default function ResumeUpload() {
       {status === "error" && (
         <p role="alert" className="mt-3 text-sm font-medium text-mark">
           {message}
+        </p>
+      )}
+      {extraction?.success === true && (
+        <div className="mt-4 rounded-xl border border-ink-line bg-ink/40 px-4 py-3">
+          <p className="font-mono text-xs text-ink-soft">
+            {extraction.data.fileType.toUpperCase()} • Extracted{" "}
+            {extraction.data.charCount.toLocaleString()} characters
+          </p>
+
+          <p className="mt-2 line-clamp-3 text-sm text-paper">
+            {extraction.data.text.slice(0, 300)}
+            {extraction.data.text.length > 300 ? "…" : ""}
+          </p>
+        </div>
+      )}
+
+      {extraction?.success === false && (
+        <p role="alert" className="mt-3 text-sm font-medium text-mark">
+          Text extraction: {extraction.message}
         </p>
       )}
     </div>

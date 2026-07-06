@@ -2,6 +2,7 @@ import { randomUUID } from "crypto";
 import { mkdir, writeFile } from "fs/promises";
 import { NextResponse } from "next/server";
 import path from "path";
+import { extractResumeText } from "@/lib/extraction";
 import {
   MAX_FILE_SIZE_BYTES,
   isAllowedFileSize,
@@ -59,12 +60,17 @@ export async function POST(
     const destination = path.join(UPLOAD_DIR, uniqueFilename);
 
     const arrayBuffer = await file.arrayBuffer();
-    await writeFile(destination, Buffer.from(arrayBuffer));
+    const buffer = Buffer.from(arrayBuffer);
+
+    await writeFile(destination, buffer);
+
+    const extraction = await extractResumeText(buffer, file.name);
 
     return NextResponse.json({
       success: true,
       filename: uniqueFilename,
       message: "File uploaded successfully",
+      extraction,
     });
   } catch (error) {
     console.error("Upload error:", error);

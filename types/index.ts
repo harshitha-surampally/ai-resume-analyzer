@@ -15,4 +15,16 @@ export type UploadResponse = {
   success: boolean;
   filename?: string;
   message: string;
+  extraction?: ExtractionResult;
 };
+export type SupportedResumeFileType = "pdf" | "docx";
+
+export type ExtractedText = {
+  text: string;
+  charCount: number;
+  fileType: SupportedResumeFileType;
+};
+
+export type ExtractionResult =
+  | { success: true; data: ExtractedText }
+  | { success: false; message: string };
