@@ -1,6 +1,7 @@
 import { generateAIResponse } from "./client";
 import { buildResumeAnalysisPrompt } from "./prompts/resumeAnalysisPrompt";
 import type { ResumeAnalysisResult } from "./types";
+const MAX_RESUME_CHARS = 15000;
 
 function cleanJsonResponse(raw: string): string {
   return raw
@@ -42,8 +43,8 @@ export async function analyzeResumeText(
   if (!resumeText || resumeText.trim().length === 0) {
     throw new Error("Cannot analyze empty resume text.");
   }
-
-  const prompt = buildResumeAnalysisPrompt(resumeText);
+  const trimmedText = resumeText.trim().slice(0, MAX_RESUME_CHARS);
+  const prompt = buildResumeAnalysisPrompt(trimmedText);
   const rawResponse = await generateAIResponse(prompt);
   const cleaned = cleanJsonResponse(rawResponse);
 
