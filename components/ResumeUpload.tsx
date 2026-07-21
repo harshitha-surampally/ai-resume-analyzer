@@ -13,12 +13,16 @@ import type {
   UploadResponse,
   UploadStatus,
 } from "@/types";
+import type { ResumeAnalysisResult } from "@/lib/ai/types";
 
 export default function ResumeUpload() {
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState<UploadStatus>("idle");
   const [message, setMessage] = useState("");
   const [extraction, setExtraction] = useState<ExtractionResult | null>(null);
+  const [analysis, setAnalysis] = useState<ResumeAnalysisResult | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [isDragActive, setIsDragActive] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -28,6 +32,8 @@ export default function ResumeUpload() {
       setStatus("error");
       setMessage("Only PDF and DOCX files are supported.");
       setExtraction(null);
+      setAnalysis(null);
+      setAnalysisError(null);
       return;
     }
 
@@ -40,6 +46,8 @@ export default function ResumeUpload() {
         )}.`
       );
       setExtraction(null);
+      setAnalysis(null);
+      setAnalysisError(null);
       return;
     }
 
@@ -47,6 +55,8 @@ export default function ResumeUpload() {
     setStatus("idle");
     setMessage("");
     setExtraction(null);
+    setAnalysis(null);
+    setAnalysisError(null);
   }, []);
 
   const handleDrop = useCallback(
@@ -73,6 +83,8 @@ export default function ResumeUpload() {
     setStatus("idle");
     setMessage("");
     setExtraction(null);
+    setAnalysis(null);
+    setAnalysisError(null);
   };
 
   const handleUpload = async () => {
@@ -81,6 +93,8 @@ export default function ResumeUpload() {
     setStatus("uploading");
     setMessage("");
     setExtraction(null);
+    setAnalysis(null);
+    setAnalysisError(null);
 
     try {
       const formData = new FormData();
@@ -111,7 +125,40 @@ export default function ResumeUpload() {
       setExtraction(null);
     }
   };
+const handleAnalyze = async () => {
+  if (!extraction?.success) return;
 
+  setIsAnalyzing(true);
+  setAnalysisError(null);
+  setAnalysis(null);
+
+  try {
+    const response = await fetch("/api/analyze", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        resumeText: extraction.data.text,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      setAnalysisError(data.error || "Analysis failed. Please try again.");
+      return;
+    }
+
+    setAnalysis(data.result);
+  } catch {
+    setAnalysisError(
+      "Something went wrong while analyzing the resume. Please try again."
+    );
+  } finally {
+    setIsAnalyzing(false);
+  }
+};
   return (
     <div className="w-full max-w-xl">
       <div
@@ -254,6 +301,65 @@ export default function ResumeUpload() {
           Text extraction: {extraction.message}
         </p>
       )}
+      {extraction?.success === true && (
+  <button
+    type="button"
+    onClick={handleAnalyze}
+    disabled={isAnalyzing}
+    className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-mark px-6 py-3 text-sm font-semibold text-ink transition-colors hover:bg-mark-soft disabled:cursor-not-allowed disabled:opacity-40"
+  >
+    {isAnalyzing ? (
+      <>
+        <Spinner className="h-4 w-4" />
+        Analyzing...
+      </>
+    ) : (
+      "Analyze Resume"
+    )}
+  </button>
+)}
+
+{analysisError && (
+  <p role="alert" className="mt-3 text-sm font-medium text-mark">
+    {analysisError}
+  </p>
+)}
+
+{analysis && (
+  <div className="mt-6 rounded-xl border border-ink-line bg-ink/40 px-5 py-5">
+    <h3 className="font-display text-xl font-semibold text-paper">
+      Resume Analysis
+    </h3>
+
+    <p className="mt-3 text-sm text-paper">
+      <span className="font-semibold">Score:</span>{" "}
+      {analysis.overallScore}/100
+    </p>
+
+    <p className="mt-3 text-sm text-ink-soft">{analysis.summary}</p>
+
+    <h4 className="mt-5 font-semibold text-paper">Strengths</h4>
+    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-ink-soft">
+      {analysis.strengths.map((strength, index) => (
+        <li key={index}>{strength}</li>
+      ))}
+    </ul>
+
+    <h4 className="mt-5 font-semibold text-paper">Weaknesses</h4>
+    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-ink-soft">
+      {analysis.weaknesses.map((weakness, index) => (
+        <li key={index}>{weakness}</li>
+      ))}
+    </ul>
+
+    <h4 className="mt-5 font-semibold text-paper">Suggestions</h4>
+    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-ink-soft">
+      {analysis.suggestions.map((suggestion, index) => (
+        <li key={index}>{suggestion}</li>
+      ))}
+    </ul>
+  </div>
+)}
     </div>
   );
 }
