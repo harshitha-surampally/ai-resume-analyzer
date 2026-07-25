@@ -5,6 +5,7 @@ export const NAV_LINKS: NavLink[] = [
   { label: "Features", href: "#features" },
   { label: "About", href: "#about" },
   { label: "Contact", href: "#contact" },
+  { label: "History", href: "/history" },
 ];
 
 export const FEATURES: Feature[] = [

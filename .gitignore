@@ -24,6 +24,7 @@ yarn-error.log*
 
 # local env files
 .env*.local
+.env
 
 # vercel
 .vercel
@@ -35,3 +36,9 @@ next-env.d.ts
 # uploaded resumes
 /uploads/*
 !/uploads/.gitkeep
+
+# local database
+/dev.db
+
+/generated/prisma
+
