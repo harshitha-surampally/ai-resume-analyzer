@@ -32,12 +32,35 @@ export default function AnalysisResult({ analysis }: AnalysisResultProps) {
         ))}
       </ul>
 
-      <h4 className="mt-5 font-semibold text-paper">Suggestions</h4>
-      <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-ink-soft">
-        {analysis.suggestions.map((suggestion, index) => (
-          <li key={index}>{suggestion}</li>
-        ))}
-      </ul>
+     <h4 className="mt-5 font-semibold text-paper">Suggestions</h4>
+<ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-ink-soft">
+  {analysis.suggestions.map((suggestion, index) => (
+    <li key={index}>{suggestion}</li>
+  ))}
+</ul>
+
+{analysis.jobMatchScore != null && (
+  <>
+    <p className="mt-5 text-sm text-paper">
+      <span className="font-semibold">Job Match Score:</span>{" "}
+      {analysis.jobMatchScore}/100
+    </p>
+
+    <h4 className="mt-5 font-semibold text-paper">Matched Skills</h4>
+    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-ink-soft">
+      {analysis.matchedSkills.map((skill, index) => (
+        <li key={index}>{skill}</li>
+      ))}
+    </ul>
+
+    <h4 className="mt-5 font-semibold text-paper">Missing Skills</h4>
+    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-ink-soft">
+      {analysis.missingSkills.map((skill, index) => (
+        <li key={index}>{skill}</li>
+      ))}
+    </ul>
+  </>
+)}
     </div>
   );
 }

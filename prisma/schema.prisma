@@ -20,4 +20,7 @@ model Analysis {
   weaknesses   Json
   suggestions  Json
   createdAt    DateTime @default(now())
+  jobMatchScore Float?
+  matchedSkills Json?
+  missingSkills Json?
 }

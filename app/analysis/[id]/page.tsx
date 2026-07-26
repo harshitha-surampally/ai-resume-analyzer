@@ -20,6 +20,9 @@ function toAnalysisResult(record: {
   strengths: unknown;
   weaknesses: unknown;
   suggestions: unknown;
+  jobMatchScore: number | null;
+  matchedSkills: unknown;
+  missingSkills: unknown;
 }): ResumeAnalysisResult | null {
   if (
     !isStringArray(record.strengths) ||
@@ -31,10 +34,18 @@ function toAnalysisResult(record: {
 
   return {
     overallScore: record.overallScore,
-    summary: record.summary,
-    strengths: record.strengths,
-    weaknesses: record.weaknesses,
-    suggestions: record.suggestions,
+  summary: record.summary,
+  strengths: record.strengths,
+  weaknesses: record.weaknesses,
+  suggestions: record.suggestions,
+
+  jobMatchScore: record.jobMatchScore,
+  matchedSkills: isStringArray(record.matchedSkills)
+    ? record.matchedSkills
+    : [],
+  missingSkills: isStringArray(record.missingSkills)
+    ? record.missingSkills
+    : [],
   };
 }
 

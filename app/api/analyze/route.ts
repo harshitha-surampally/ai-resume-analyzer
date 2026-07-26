@@ -7,6 +7,17 @@ export async function POST(request: Request) {
     const body = await request.json();
     const resumeText: unknown = body?.resumeText;
     const filename: unknown = body?.filename;
+    const jobDescription: unknown = body?.jobDescription;
+
+    if (jobDescription !== undefined && typeof jobDescription !== "string") {
+  return NextResponse.json(
+    {
+      success: false,
+      error: "jobDescription must be a string when provided.",
+    },
+    { status: 400 }
+  );
+}
 
     if (typeof resumeText !== "string" || resumeText.trim().length === 0) {
       return NextResponse.json(
@@ -28,7 +39,12 @@ export async function POST(request: Request) {
       );
     }
 
-    const result = await analyzeResumeText(resumeText);
+    const result = await analyzeResumeText(
+  resumeText,
+  typeof jobDescription === "string"
+    ? jobDescription
+    : undefined
+);
 
     const saved = await prisma.analysis.create({
       data: {
@@ -38,6 +54,9 @@ export async function POST(request: Request) {
         strengths: result.strengths,
         weaknesses: result.weaknesses,
         suggestions: result.suggestions,
+        jobMatchScore: result.jobMatchScore,
+        matchedSkills: result.matchedSkills,
+        missingSkills: result.missingSkills,
       },
     });
 

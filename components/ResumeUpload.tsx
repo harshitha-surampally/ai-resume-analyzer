@@ -25,6 +25,7 @@ export default function ResumeUpload() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [isDragActive, setIsDragActive] = useState(false);
+  const [jobDescription, setJobDescription] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
   const validateAndSetFile = useCallback((candidate: File) => {
@@ -142,6 +143,7 @@ const handleAnalyze = async () => {
       body: JSON.stringify({
         resumeText: extraction.data.text,
         filename: file?.name ?? "",
+        jobDescription: jobDescription.trim() || undefined,
       }),
     });
 
@@ -303,6 +305,25 @@ const handleAnalyze = async () => {
           Text extraction: {extraction.message}
         </p>
       )}
+      {extraction?.success === true && (
+  <div className="mt-4">
+    <label
+      htmlFor="job-description"
+      className="mb-1 block text-sm font-medium text-paper"
+    >
+      Job description <span className="text-ink-soft">(optional)</span>
+    </label>
+
+    <textarea
+      id="job-description"
+      value={jobDescription}
+      onChange={(event) => setJobDescription(event.target.value)}
+      placeholder="Paste a job description here to compare it against this resume later..."
+      rows={6}
+      className="w-full rounded-xl border border-ink-line bg-ink/40 px-4 py-3 text-sm text-paper placeholder:text-ink-soft focus:outline-none focus-visible:ring-2 focus-visible:ring-mark"
+    />
+  </div>
+)}
       {extraction?.success === true && (
   <button
     type="button"
