@@ -57,6 +57,13 @@ export async function POST(request: Request) {
         jobMatchScore: result.jobMatchScore,
         matchedSkills: result.matchedSkills,
         missingSkills: result.missingSkills,
+        atsScore: result.atsScore,
+        atsIssues: result.atsIssues,
+        sectionFeedback: result.sectionFeedback,
+        recommendedKeywords: result.recommendedKeywords,
+        missingSections: result.missingSections,
+        priorityImprovements: result.priorityImprovements,
+        achievementSuggestions: result.achievementSuggestions,
       },
     });
 

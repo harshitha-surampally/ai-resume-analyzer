@@ -18,6 +18,24 @@ function isStringArray(value: unknown): value is string[] {
     value.every((item) => typeof item === "string")
   );
 }
+function isSectionFeedbackArray(
+  value: unknown
+): value is { section: string; score: number; feedback: string }[] {
+  return (
+    Array.isArray(value) &&
+    value.every((item) => {
+      if (typeof item !== "object" || item === null) return false;
+      const obj = item as Record<string, unknown>;
+      return (
+        typeof obj.section === "string" &&
+        typeof obj.score === "number" &&
+        obj.score >= 0 &&
+        obj.score <= 10 &&
+        typeof obj.feedback === "string"
+      );
+    })
+  );
+}
 
 interface BaseAnalysisFields {
   overallScore: number;
@@ -72,6 +90,36 @@ function parseAnalysisResult(
   if (!hasBaseAnalysisShape(d)) {
     throw new Error("AI response did not match the expected analysis shape.");
   }
+  const atsScore =
+  typeof d.atsScore === "number" &&
+  d.atsScore >= 0 &&
+  d.atsScore <= 100
+    ? d.atsScore
+    : undefined;
+
+const atsIssues = isStringArray(d.atsIssues)
+  ? d.atsIssues
+  : undefined;
+
+const sectionFeedback = isSectionFeedbackArray(d.sectionFeedback)
+  ? d.sectionFeedback
+  : undefined;
+
+const recommendedKeywords = isStringArray(d.recommendedKeywords)
+  ? d.recommendedKeywords
+  : undefined;
+
+const missingSections = isStringArray(d.missingSections)
+  ? d.missingSections
+  : undefined;
+
+const priorityImprovements = isStringArray(d.priorityImprovements)
+  ? d.priorityImprovements
+  : undefined;
+
+const achievementSuggestions = isStringArray(d.achievementSuggestions)
+  ? d.achievementSuggestions
+  : undefined;
 
   if (!requireJobMatch) {
     return {
@@ -83,6 +131,14 @@ function parseAnalysisResult(
       jobMatchScore: null,
       matchedSkills: [],
       missingSkills: [],
+
+      atsScore,
+      atsIssues,
+      sectionFeedback,
+      recommendedKeywords,
+      missingSections,
+      priorityImprovements,
+      achievementSuggestions,
     };
   }
 
@@ -99,6 +155,14 @@ function parseAnalysisResult(
     jobMatchScore: d.jobMatchScore,
     matchedSkills: d.matchedSkills,
     missingSkills: d.missingSkills,
+
+    atsScore,
+    atsIssues,
+    sectionFeedback,
+    recommendedKeywords,
+    missingSections,
+    priorityImprovements,
+    achievementSuggestions,
   };
 }
 

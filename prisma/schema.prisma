@@ -23,4 +23,12 @@ model Analysis {
   jobMatchScore Float?
   matchedSkills Json?
   missingSkills Json?
+  // Phase 7: AI Resume Improvement Assistant fields
+  atsScore               Float?
+  atsIssues              Json?
+  sectionFeedback        Json?
+  recommendedKeywords    Json?
+  missingSections        Json?
+  priorityImprovements   Json?
+  achievementSuggestions Json?
 }
