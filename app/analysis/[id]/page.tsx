@@ -13,7 +13,22 @@ function formatDate(date: Date): string {
 function isStringArray(value: unknown): value is string[] {
   return Array.isArray(value) && value.every((item) => typeof item === "string");
 }
-
+function isSectionFeedbackArray(
+  value: unknown
+): value is { section: string; score: number; feedback: string }[] {
+  return (
+    Array.isArray(value) &&
+    value.every((item) => {
+      if (typeof item !== "object" || item === null) return false;
+      const obj = item as Record<string, unknown>;
+      return (
+        typeof obj.section === "string" &&
+        typeof obj.score === "number" &&
+        typeof obj.feedback === "string"
+      );
+    })
+  );
+}
 function toAnalysisResult(record: {
   overallScore: number;
   summary: string;
@@ -23,6 +38,14 @@ function toAnalysisResult(record: {
   jobMatchScore: number | null;
   matchedSkills: unknown;
   missingSkills: unknown;
+
+  atsScore: number | null;
+  atsIssues: unknown;
+  sectionFeedback: unknown;
+  recommendedKeywords: unknown;
+  missingSections: unknown;
+  priorityImprovements: unknown;
+  achievementSuggestions: unknown;
 }): ResumeAnalysisResult | null {
   if (
     !isStringArray(record.strengths) ||
@@ -46,6 +69,26 @@ function toAnalysisResult(record: {
   missingSkills: isStringArray(record.missingSkills)
     ? record.missingSkills
     : [],
+
+    atsScore: record.atsScore ?? undefined,
+atsIssues: isStringArray(record.atsIssues)
+  ? record.atsIssues
+  : undefined,
+sectionFeedback: isSectionFeedbackArray(record.sectionFeedback)
+  ? record.sectionFeedback
+  : undefined,
+recommendedKeywords: isStringArray(record.recommendedKeywords)
+  ? record.recommendedKeywords
+  : undefined,
+missingSections: isStringArray(record.missingSections)
+  ? record.missingSections
+  : undefined,
+priorityImprovements: isStringArray(record.priorityImprovements)
+  ? record.priorityImprovements
+  : undefined,
+achievementSuggestions: isStringArray(record.achievementSuggestions)
+  ? record.achievementSuggestions
+  : undefined,
   };
 }
 
