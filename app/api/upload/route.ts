@@ -1,7 +1,4 @@
-import { randomUUID } from "crypto";
-import { mkdir, writeFile } from "fs/promises";
 import { NextResponse } from "next/server";
-import path from "path";
 import { extractResumeText } from "@/lib/extraction";
 import {
   MAX_FILE_SIZE_BYTES,
@@ -12,11 +9,8 @@ import { UploadResponse } from "@/types";
 
 export const runtime = "nodejs";
 
-const UPLOAD_DIR = path.join(process.cwd(), "uploads");
 
-function sanitizeFileName(name: string): string {
-  return name.replace(/[^a-zA-Z0-9.\-_]/g, "_");
-}
+
 
 export async function POST(
   request: Request
@@ -54,21 +48,18 @@ export async function POST(
       );
     }
 
-    await mkdir(UPLOAD_DIR, { recursive: true });
-
-    const uniqueFilename = `${randomUUID()}-${sanitizeFileName(file.name)}`;
-    const destination = path.join(UPLOAD_DIR, uniqueFilename);
+  
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    await writeFile(destination, buffer);
+  
 
     const extraction = await extractResumeText(buffer, file.name);
 
     return NextResponse.json({
       success: true,
-      filename: uniqueFilename,
+      filename: file.name,
       message: "File uploaded successfully",
       extraction,
     });

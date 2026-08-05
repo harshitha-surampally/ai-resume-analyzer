@@ -73,6 +73,7 @@ export async function POST(request: Request) {
       id: saved.id,
     });
   } catch (error) {
+    console.error("Resume analysis failed:", error);
     return NextResponse.json(
       {
         success: false,

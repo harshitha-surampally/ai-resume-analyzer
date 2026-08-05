@@ -7,7 +7,10 @@ if (!apiKey) {
   throw new Error("GEMINI_API_KEY is not set in the environment.");
 }
 
-const ai = new GoogleGenAI({ apiKey });
+const ai = new GoogleGenAI({
+  apiKey,
+  httpOptions: { timeout: 30000 },
+});
 
 export async function generateAIResponse(prompt: string): Promise<string> {
   const response = await ai.models.generateContent({
