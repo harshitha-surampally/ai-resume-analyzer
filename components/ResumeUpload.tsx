@@ -13,7 +13,10 @@ import type {
   UploadResponse,
   UploadStatus,
 } from "@/types";
-import type { ResumeAnalysisResult } from "@/lib/ai/types";
+import type {
+  ResumeAnalysisResult,
+  ResumeImprovementResult,
+} from "@/lib/ai/types";
 import AnalysisResult from "@/components/AnalysisResult";
 
 export default function ResumeUpload() {
@@ -22,8 +25,13 @@ export default function ResumeUpload() {
   const [message, setMessage] = useState("");
   const [extraction, setExtraction] = useState<ExtractionResult | null>(null);
   const [analysis, setAnalysis] = useState<ResumeAnalysisResult | null>(null);
+  const [improvement, setImprovement] =
+  useState<ResumeImprovementResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isImproving, setIsImproving] = useState(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const [improvementError, setImprovementError] =
+  useState<string | null>(null);
   const [isDragActive, setIsDragActive] = useState(false);
   const [jobDescription, setJobDescription] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -133,6 +141,8 @@ const handleAnalyze = async () => {
   setIsAnalyzing(true);
   setAnalysisError(null);
   setAnalysis(null);
+  setImprovement(null);
+  setImprovementError(null);
 
   try {
     const response = await fetch("/api/analyze", {
@@ -162,6 +172,41 @@ const handleAnalyze = async () => {
   } finally {
     setIsAnalyzing(false);
   }
+};
+const handleImprove = async () => {
+  if (!extraction?.success || !analysis) return;
+
+  setIsImproving(true);
+  setImprovementError(null);
+  setImprovement(null);
+  try {
+  const response = await fetch("/api/improve", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      resumeText: extraction.data.text,
+      analysis,
+    }),
+  });
+
+  const data = await response.json();
+  if (!response.ok || !data.success) {
+  setImprovementError(
+    data.error || "Resume improvement failed. Please try again."
+  );
+  return;
+}
+
+setImprovement(data.result);
+} catch {
+  setImprovementError(
+    "Something went wrong while improving the resume. Please try again."
+  );
+} finally {
+  setIsImproving(false);
+}
 };
   return (
     <div className="w-full max-w-xl">
@@ -349,6 +394,87 @@ const handleAnalyze = async () => {
 )}
 
 {analysis && <AnalysisResult analysis={analysis} />}
+{analysis && extraction?.success === true && (
+  <button
+    type="button"
+    onClick={handleImprove}
+    disabled={isImproving}
+    className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-mark px-6 py-3 text-sm font-semibold text-ink transition-colors hover:bg-mark-soft disabled:cursor-not-allowed disabled:opacity-40"
+  >
+    {isImproving ? (
+      <>
+        <Spinner className="h-4 w-4" />
+        Improving...
+      </>
+    ) : (
+      "Improve Resume"
+    )}
+  </button>
+)}
+{improvementError && (
+  <p role="alert" className="mt-3 text-sm font-medium text-mark">
+    {improvementError}
+  </p>
+)}
+{improvement && (
+  <div className="mt-6">
+    <p className="font-mono text-xs text-mark">
+      RESUME IMPROVEMENTS
+    </p>
+    {improvement.overallNotes && (
+  <p className="mt-2 text-sm leading-6 text-ink-soft">
+    {improvement.overallNotes}
+  </p>
+)}
+{improvement.improvements.length === 0 && (
+  <p className="mt-4 rounded-xl border border-ink-line px-4 py-3 text-sm text-ink-soft">
+    No safe resume improvements were generated. Try analyzing the resume again
+    or review the existing suggestions.
+  </p>
+)}
+    <div className="mt-4 space-y-4">
+  {improvement.improvements.map((item, index) => (
+    <div
+      key={`${item.section}-${index}`}
+      className="rounded-xl border border-ink-line bg-ink/40 px-4 py-4"
+    >
+      <p className="font-display text-base font-semibold text-paper">
+        {item.section}
+      </p>
+      <div className="mt-3">
+  <p className="font-mono text-xs text-ink-soft">
+    ORIGINAL
+  </p>
+
+  <p className="mt-1 text-sm leading-6 text-ink-soft">
+    {item.original}
+  </p>
+</div>
+<div className="mt-4">
+  <p className="font-mono text-xs text-mark">
+    IMPROVED
+  </p>
+
+  <p className="mt-1 text-sm leading-6 text-paper">
+    {item.improved}
+  </p>
+</div>
+{item.rationale && (
+  <div className="mt-4 border-t border-ink-line pt-3">
+    <p className="font-mono text-xs text-ink-soft">
+      WHY THIS IS BETTER
+    </p>
+
+    <p className="mt-1 text-sm leading-6 text-ink-soft">
+      {item.rationale}
+    </p>
+  </div>
+)}
+    </div>
+  ))}
+</div>
+  </div>
+)}
     </div>
   );
 }

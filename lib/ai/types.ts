@@ -22,3 +22,15 @@ missingSections?: string[];
 priorityImprovements?: string[];
 achievementSuggestions?: string[];
 }
+// Phase 8: AI Resume Rewriter & Optimization
+export interface ResumeImprovement {
+  section: string;
+  original: string;
+  improved: string;
+  rationale?: string;
+}
+
+export interface ResumeImprovementResult {
+  improvements: ResumeImprovement[];
+  overallNotes?: string;
+}
