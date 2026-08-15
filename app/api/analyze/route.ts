@@ -49,6 +49,7 @@ export async function POST(request: Request) {
     const saved = await prisma.analysis.create({
       data: {
         filename,
+        resumeText,
         overallScore: result.overallScore,
         summary: result.summary,
         strengths: result.strengths,

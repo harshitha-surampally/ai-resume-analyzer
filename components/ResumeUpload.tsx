@@ -25,6 +25,7 @@ export default function ResumeUpload() {
   const [message, setMessage] = useState("");
   const [extraction, setExtraction] = useState<ExtractionResult | null>(null);
   const [analysis, setAnalysis] = useState<ResumeAnalysisResult | null>(null);
+  const [analysisId, setAnalysisId] = useState<string | null>(null);
   const [improvement, setImprovement] =
   useState<ResumeImprovementResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -165,6 +166,7 @@ const handleAnalyze = async () => {
     }
 
     setAnalysis(data.result);
+    setAnalysisId(data.id);
   } catch {
     setAnalysisError(
       "Something went wrong while analyzing the resume. Please try again."
@@ -188,6 +190,7 @@ const handleImprove = async () => {
     body: JSON.stringify({
       resumeText: extraction.data.text,
       analysis,
+      analysisId,
     }),
   });
 

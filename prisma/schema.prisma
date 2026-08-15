@@ -14,12 +14,14 @@ datasource db {
 model Analysis {
   id           String   @id @default(cuid())
   filename     String
+  resumeText   String?
   overallScore Float
   summary      String
   strengths    Json
   weaknesses   Json
   suggestions  Json
   createdAt    DateTime @default(now())
+  versions     ResumeVersion[]
   jobMatchScore Float?
   matchedSkills Json?
   missingSkills Json?
@@ -31,4 +33,12 @@ model Analysis {
   missingSections        Json?
   priorityImprovements   Json?
   achievementSuggestions Json?
+}
+model ResumeVersion {
+  id           String   @id @default(cuid())
+  analysisId   String
+  analysis     Analysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+  improvements Json
+  overallNotes String?
+  createdAt    DateTime @default(now())
 }
