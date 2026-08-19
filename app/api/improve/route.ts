@@ -18,20 +18,21 @@ export async function POST(request: Request) {
     { status: 400 }
   );
 }
-if (typeof analysis !== "object" || analysis === null) {
+if (
+  typeof analysis !== "object" ||
+  analysis === null ||
+  typeof (analysis as Record<string, unknown>).overallScore !== "number" ||
+  typeof (analysis as Record<string, unknown>).summary !== "string" ||
+  !Array.isArray((analysis as Record<string, unknown>).strengths) ||
+  !Array.isArray((analysis as Record<string, unknown>).weaknesses) ||
+  !Array.isArray((analysis as Record<string, unknown>).suggestions) ||
+  !Array.isArray((analysis as Record<string, unknown>).matchedSkills) ||
+  !Array.isArray((analysis as Record<string, unknown>).missingSkills)
+) {
   return NextResponse.json(
     {
       success: false,
-      error: "analysis is required and must be a valid object.",
-    },
-    { status: 400 }
-  );
-}
-if (typeof analysis !== "object" || analysis === null) {
-  return NextResponse.json(
-    {
-      success: false,
-      error: "analysis is required and must be a valid object.",
+      error: "analysis is required and must be a valid analysis result.",
     },
     { status: 400 }
   );

@@ -45,6 +45,9 @@ export default function ResumeUpload() {
       setExtraction(null);
       setAnalysis(null);
       setAnalysisError(null);
+      setImprovement(null);
+      setImprovementError(null);
+      setAnalysisId(null);
       return;
     }
 
@@ -59,6 +62,9 @@ export default function ResumeUpload() {
       setExtraction(null);
       setAnalysis(null);
       setAnalysisError(null);
+      setImprovement(null);
+      setImprovementError(null);
+      setAnalysisId(null);
       return;
     }
 
@@ -68,6 +74,9 @@ export default function ResumeUpload() {
     setExtraction(null);
     setAnalysis(null);
     setAnalysisError(null);
+    setImprovement(null);
+    setImprovementError(null);
+    setAnalysisId(null);
   }, []);
 
   const handleDrop = useCallback(
@@ -96,6 +105,9 @@ export default function ResumeUpload() {
     setExtraction(null);
     setAnalysis(null);
     setAnalysisError(null);
+    setImprovement(null);
+    setImprovementError(null);
+    setAnalysisId(null);
   };
 
   const handleUpload = async () => {

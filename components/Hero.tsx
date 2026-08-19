@@ -24,7 +24,7 @@ export default function Hero() {
           sees it.
         </p>
         <div className="mt-8 flex flex-wrap items-center gap-4">
-          <Button href="#features">Analyze your resume</Button>
+          <Button href="/upload">Analyze your resume</Button>
           <Button href="#features" variant="secondary">
             See how it works
           </Button>
