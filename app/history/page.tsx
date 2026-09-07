@@ -7,6 +7,7 @@ function formatDate(date: Date): string {
   return new Intl.DateTimeFormat("en-US", {
     dateStyle: "medium",
     timeStyle: "short",
+    timeZone: "Asia/Kolkata",
   }).format(date);
 }
 
