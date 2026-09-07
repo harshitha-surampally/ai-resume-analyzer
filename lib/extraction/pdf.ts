@@ -1,10 +1,14 @@
+import { CanvasFactory } from "pdf-parse/worker";
 import { PDFParse } from "pdf-parse";
 import type { ExtractionResult } from "@/types";
 
 export async function extractTextFromPdf(
   buffer: Buffer
 ): Promise<ExtractionResult> {
-  const parser = new PDFParse({ data: buffer });
+  const parser = new PDFParse({
+  data: buffer,
+  CanvasFactory,
+});
 
   try {
     const result = await parser.getText();
